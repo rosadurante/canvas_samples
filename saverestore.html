@@ -1,0 +1,89 @@
+<!-- Test based on http://html5.litten.com/understanding-save-and-restore-for-the-canvas-context/ -->
+<!-- By James Litten -->
+
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Canvas Test</title>
+  </head>
+  <body>
+
+  <section>
+    <div>
+      <canvas id="canvas" width="220" height="120"></canvas>
+    </div>
+
+    <script type="text/javascript">
+
+    var canvas;
+    var ctx;
+
+    function init() {
+      canvas = document.getElementById("canvas");
+      ctx = canvas.getContext("2d");
+
+      // Adding small border
+      ctx.fillStyle = 'black';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = 'white';
+      ctx.fillRect(5, 5, canvas.width - 10, canvas.height - 10);
+
+      draw();
+    }
+
+    function draw() {
+
+      ctx.fillStyle = 'green';
+      ctx.shadowOffsetX = 2;
+      ctx.shadowOffsetY = 2;
+      ctx.shadowBlur = 5;
+      ctx.shadowColor = '#ccc';
+      ctx.fillRect(10,10,20,20);
+      ctx.save();
+
+      ctx.fillStyle = 'red';
+      ctx.shadowOffsetX = -8;
+      ctx.shadowOffsetY = 8;
+      ctx.shadowBlur = 3;
+      ctx.shadowColor = '#ccc';
+      ctx.fillRect(45,10,30,10);
+      ctx.save();
+
+      ctx.fillStyle = 'blue';
+      ctx.shadowOffsetX = 5;
+      ctx.shadowOffsetY = 3;
+      ctx.shadowBlur = 0;
+      ctx.shadowColor = '#ccc';
+      ctx.fillRect(80,10,30,100);
+      ctx.save();
+
+      ctx.restore();
+      ctx.beginPath();
+      ctx.arc(130, 20, 10, 0, Math.PI*2, true);
+      ctx.closePath();
+      ctx.fill();
+
+      ctx.restore();
+      ctx.beginPath();
+      ctx.arc(160, 75, 30, 0, Math.PI*2, true);
+      ctx.closePath();
+      ctx.fill();
+
+      ctx.restore();
+      ctx.beginPath();
+      ctx.arc(190, 25, 15, 0, Math.PI*2, true);
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    init();
+
+    </script>
+  </section>
+
+  <aside> </aside>
+  <footer> </footer>
+
+</body>
+</html>
