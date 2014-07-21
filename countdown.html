@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>CountDown - Canvas</title>
+    <style>
+      body > div {
+        display: inline-block;
+        margin: 0 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="countdownByFont"></div>
+    <div id="countdownByInterval"></div>
+    <div id="countdownByBrowserAnimation"></div>
+  </body>
+
+  <script>
+
+  var CountDown = function (element, width, height, endText, counter) {
+    this.canvas = document.createElement('canvas');
+    this.canvas.width = width;
+    this.canvas.height = height;
+
+    this.attributes = {
+      width: width, height: height, endText: endText, counter: counter
+    };
+
+    this.attributes.style = {
+      baseline: 'middle',
+      textAlign: 'center',
+      fontSize: 80,
+      fontfamily: '"Helveltica Neue", Arial',
+      fillStyle: '#fff'
+    }
+
+    this.getContext('2d');
+    element.appendChild(this.canvas);
+  };
+
+  CountDown.prototype.getContext = function (contextType) {
+    this.ctx = this.canvas.getContext(contextType);
+
+    // Setting all the differents attributes to the context
+    this.ctx.textBaseline = this.attributes.style.baseline;
+    this.ctx.textAlign = this.attributes.style.textAlign;
+    this.ctx.fillStyle = this.attributes.style.fillStyle;
+    this.ctx.font = this.attributes.style.fontSize + 'em ' + this.attributes.style.fontfamily;
+
+    // Reset canvas
+    this.clearCanvas();
+  };
+
+  CountDown.prototype.clearCanvas = function () {
+    this.ctx.clearRect(0, 0, this.attributes.width, this.attributes.height);
+    // Draw black background
+    this.ctx.fillStyle = 'black';
+    this.ctx.fillRect(0, 0, this.attributes.width, this.attributes.height);
+    // Back to the previous settings.
+    this.ctx.fillStyle = this.attributes.style.fillStyle;
+  };
+
+  CountDown.prototype.animateInFont = function () {
+    var self = this,
+
+      drawText = function (text) {
+        self.ctx.fontsize = self.attributes.style.fontSize;
+        self.ctx.font = self.attributes.style.fontSize + 'em ' + self.attributes.style.fontfamily;
+
+        self.ctx.fillText(text, self.attributes.width / 2, self.attributes.height / 2 + self.attributes.style.fontSize / 2);
+
+        var interval = 50,
+          period = parseFloat(self.attributes.style.fontSize*interval / 1500);
+
+        self.interval = setInterval(function () {
+          drawSmaller(text, period);
+        }, interval);
+      },
+
+      drawSmaller = function (text, difference) {
+        var fontsize = self.ctx.fontsize - difference;
+        self.clearCanvas();
+        self.ctx.font = fontsize + 'em ' + self.attributes.style.fontfamily;
+        self.ctx.fillText(text, self.attributes.width / 2, self.attributes.height / 2 + fontsize / 2);
+        self.ctx.fontsize = fontsize;
+      };
+
+    clearInterval(this.interval);
+    this.clearCanvas();
+
+    if (this.attributes.counter === 0) {
+      drawText(this.attributes.endText);
+      setTimeout(function () { self.clearCanvas(); }, 2000);
+      setTimeout(function () { clearInterval(self.interval); }, 1500);
+      return;
+    }
+
+    drawText(this.attributes.counter.toString());
+    this.attributes.counter -= 1;
+    setTimeout(function () { self.animateInFont(); }, 1500);
+  };
+
+
+  var canvasFontElement = document.getElementById('countdownByFont'),
+    canvasIntervalElement = document.getElementById('countdownByInterval'),
+    canvasBrowserElement = document.getElementById('countdownByBrowserAnimation');
+    canvasFont = new CountDown(canvasFontElement, 320, 480, 'GO', 5),
+    canvasInterval = new CountDown(canvasIntervalElement, 320, 480, 'GO', 5),
+    canvasBrowser = new CountDown(canvasBrowserElement, 320, 480, 'GO', 5);
+
+  canvasFont.animateInFont();
+  // canvasInterval.animateInterval();
+  // canvasBrowser.animateBrowserAnimationFrame();
+
+  </script>
+</html>
