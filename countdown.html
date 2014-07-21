@@ -102,6 +102,124 @@
     setTimeout(function () { self.animateInFont(); }, 1500);
   };
 
+  CountDown.prototype.animateInInterval = function () {
+    var self = this,
+
+      updateCounter = function () {
+        switch (self.attributes.counter) {
+          case self.attributes.endText:
+            clearInterval(self.interval);
+            break;
+          case 1:
+            self.attributes.counter = self.attributes.endText;
+            clearInterval(self.interval);
+            setNewInterval();
+            break;
+          default:
+            self.attributes.counter -= 1;
+            clearInterval(self.interval);
+            setNewInterval();
+            break;
+        }
+      },
+
+      setNewInterval = function () {
+        // Reset canvas, redefine fonts and fill text.
+        self.clearCanvas();
+        self.ctx.font = self.attributes.style.fontSize + 'em ' + self.attributes.style.fontfamily;
+        self.ctx.fillText(self.attributes.counter, self.attributes.width / 2,
+            self.attributes.height / 2 + self.attributes.style.fontSize / 2);
+        self.scaleValue = 1;
+
+        self.interval = setInterval(function () {
+
+          self.ctx.save();
+
+          self.clearCanvas();
+          self.scaleValue += 1;
+          var scale = 1 - (self.scaleValue / (self.FPS * (self.milisecondsPerNumber/1000)));
+          // Get the position of the canvas. Once the canvas has scaled it will display at the center.
+          self.ctx.translate(
+            (self.attributes.width - self.attributes.width*scale) / 2,
+            (self.attributes.height - self.attributes.height*scale) / 2
+            );
+          self.ctx.scale(scale, scale);
+          // Once canvas is smaller and well positioned, draw text.
+          self.ctx.fillText(self.attributes.counter, self.attributes.width / 2,
+            self.attributes.height / 2 + self.attributes.style.fontSize / 2);
+
+          self.ctx.restore();
+
+        }, 1000/self.FPS);
+
+        setTimeout(updateCounter, self.milisecondsPerNumber);
+      };
+
+    this.FPS = 60;
+    this.milisecondsPerNumber = 1500;
+    setNewInterval();
+  };
+
+  CountDown.prototype.animateInBrowserAnimationFrame = function () {
+    this.attributes.scale = 1;
+    this.attributes.scaleValue = 0;
+    this.attributes.animate = true;
+    requestAnimationFrame(this.loopGame.bind(this));
+  };
+
+  CountDown.prototype.update = function () {
+    var self = this,
+      milisecPerNumber = 1500;
+
+    // Set attributes for positioning the canvas in the center.
+    this.attributes.translateX = (this.attributes.width - (this.attributes.width * this.attributes.scale)) / 2;
+    this.attributes.translateY = (this.attributes.height - (this.attributes.height * this.attributes.scale)) / 2;
+
+    if (!this.interval) {
+      this.attributes.counter = 5;
+      this.interval = setInterval(function () {
+        switch (self.attributes.counter) {
+          case 1:
+            self.attributes.scale = 1;
+            self.attributes.scaleValue = 0;
+            self.attributes.counter = self.attributes.endText;
+            break;
+          case self.attributes.endText:
+            clearInterval(self.interval);
+            self.attributes.animate = false;
+            break;
+          default:
+            self.attributes.scale = 1;
+            self.attributes.scaleValue = 0;
+            self.attributes.counter -= 1;
+          }
+      }, milisecPerNumber);
+    }
+
+    this.attributes.scale -= this.attributes.scaleValue / 90; // 90 frames in 1.5 seconds (60 FPS)
+    this.attributes.scaleValue += 0.022;
+  };
+
+  CountDown.prototype.draw = function () {
+    this.ctx.save();
+
+    this.clearCanvas();
+    // Move canvas to the position to be in the center once scaled
+    this.ctx.translate(this.attributes.translateX, this.attributes.translateY);
+    // Scale canvas
+    this.ctx.scale(this.attributes.scale, this.attributes.scale);
+    // Draw text
+    this.ctx.fillText(this.attributes.counter, this.attributes.width / 2,
+      this.attributes.height / 2 + this.attributes.style.fontSize / 2);
+
+    this.ctx.restore();
+  };
+
+  CountDown.prototype.loopGame = function () {
+    this.update();
+    this.draw();
+    if (this.attributes.animate) { requestAnimationFrame(this.loopGame.bind(this)); }
+  };
 
   var canvasFontElement = document.getElementById('countdownByFont'),
     canvasIntervalElement = document.getElementById('countdownByInterval'),
@@ -111,8 +229,8 @@
     canvasBrowser = new CountDown(canvasBrowserElement, 320, 480, 'GO', 5);
 
   canvasFont.animateInFont();
-  // canvasInterval.animateInterval();
-  // canvasBrowser.animateBrowserAnimationFrame();
+  canvasInterval.animateInInterval();
+  canvasBrowser.animateInBrowserAnimationFrame();
 
   </script>
 </html>
