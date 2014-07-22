@@ -74,6 +74,47 @@
     }
   };
 
+  Menu.prototype._drawFailureLevel = function (blocks, level) {
+    this._drawBasicLayout();
+    this.level = level;
+
+    this.context.font = 'bold 3em Helveltica Neue';
+    this.context.fillText('oouch! You catched', this.game.canvas.width / 2, 260);
+    this.context.fillText(blocks.toString() + ' blocks...', this.game.canvas.width / 2, 300);
+    this.context.font = 'bold 5em Helveltica Neue';
+    this.context.fillText('Try again!', this.game.canvas.width / 2, 400);
+
+    var self = this;
+    this.game.canvas.addEventListener('click', function goToLevel() {
+      self.game.canvas.removeEventListener('click', goToLevel);
+      self.buildLevel(self.level);
+    });
+  };
+
+  Menu.prototype._drawSuccessLevel = function (blocks, nextLevel) {
+    this._drawBasicLayout();
+    this.level = nextLevel;
+
+    this.context.font = 'bold 3em Helveltica Neue';
+    this.context.fillText('YAY! You catched', this.game.canvas.width / 2, 260);
+    this.context.fillText(blocks.toString() + ' blocks!', this.game.canvas.width / 2, 300);
+    this.context.font = 'bold 5em Helveltica Neue';
+    this.context.fillText('Next Level!', this.game.canvas.width / 2, 400);
+
+    var self = this;
+    this.game.canvas.addEventListener('click', function goToLevel() {
+      self.game.canvas.removeEventListener('click', goToLevel);
+      self.buildLevel(self.level);
+    });
+  };
+
+  Menu.prototype._drawFinishGame = function () {
+    this.context.clearRect(0, 0, this.game.canvas.width, this.game.canvas.height);
+    this._drawBasicLayout();
+    this.context.font = 'bold 8em Helveltica Neue';
+    this.context.fillText('You win', this.game.canvas.width / 2, 360);
+  };
+
   Menu.prototype.drawMainMenu = function () {
     this.context.clearRect(0, 0, this.game.canvas.width, this.game.canvas.height);
 
@@ -107,7 +148,19 @@
       this.blocks.push(new Block(i*this.levels[level-1].sizeBlock, level));
     }
 
-    this.game.start(this.blocks);
+    this.game.start(this.blocks, level);
+  };
+
+  Menu.prototype.drawFinish = function (blocksCatched, level) {
+    if (blocksCatched >= this.levels[level-1].blocks * 0.8 ) {
+      if (level < 4) {
+        this._drawSuccessLevel(blocksCatched, level+1);
+      } else {
+        this._drawFinishGame();
+      }
+    } else {
+      this._drawFailureLevel(blocksCatched, level);
+    }
   };
 
 })();
