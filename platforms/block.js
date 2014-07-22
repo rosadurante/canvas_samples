@@ -1,10 +1,10 @@
 
 (function () {
 
-  window.Block = function (y, width, color, speed) {
+  window.Block = function (y, level) {
     // Function that provide a value of an attribute when it doesn't come
     // as argument.
-    this._getRandom = function (attribute) {
+    this._getRandom = function (attribute, level) {
       var value,
         colours = [
         // List of different colours
@@ -13,15 +13,15 @@
 
       switch (attribute) {
         case 'width':
-          // [1 - 480]
-          value = (Math.random() * 480) + 1;
+          if (level <= 2) { value = (Math.random() * 360) + 120; } // They will be 120 px width min.
+          else { value = (Math.random() * 480) + 1; } // They will be 1px width min.
           break;
         case 'colour':
           value = colours[Math.floor(Math.random() * colours.length)];
           break;
         case 'speed':
-          // [0 - 8]
-          value = (Math.random() * 8) + 1;
+          if (level <= 2) { value = (Math.random() * 3); } // They will have a max speed of 3.
+          else { value = (Math.random() * 7) + 2; } // They will have a speed in between [2 - 9)
           break;
         case 'x':
           // 0 || 480
@@ -34,15 +34,15 @@
     // Positions and size
     this.posX = this._getRandom('x');
     this.posY = y;
-    this.width = width || this._getRandom('width');
+    this.width = this._getRandom('width', level);
     this.height = 28;
 
     // Speed and direction
-    this.speed = speed || this._getRandom('speed');
+    this.speed = this._getRandom('speed', level);
     this.direction = this.posX === 0 ? this.speed : this.speed * -1;
 
     // Styles
-    this.fillStyle = color || this._getRandom('colour');
+    this.fillStyle = this._getRandom('colour');
 
     // Internal attributes
     this.isCatched = false;

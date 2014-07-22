@@ -1,7 +1,6 @@
 
 (function () {
-  // Canvas and play!
-  var canvas = document.getElementById('canvas');
-    game = new Game(canvas);
+  // Get canvas and play!
+  new Game(document.getElementById('canvas'));
 
 })();

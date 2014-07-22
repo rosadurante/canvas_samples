@@ -6,36 +6,27 @@
     this.canvas = canvas;
     this.context = this.canvas.getContext('2d');
 
-    // Initialise game.
-    this.init();
+    this.menu = new Menu(this);
   };
-
-  Game.prototype.init = function () {
-    // Internal variables
-    this.blocks = [];
+  Game.prototype.start = function (blocks) {
     this.clicks = [];
-
-    this._createBlocks = function () {
-      for (var i = 0; i < 20; i++) {
-        this.blocks.push(new Block(i*28));
-      }
-    };
-    this._createBlocks();
-
-    // Start game loop
-    this.animate = true;
-    requestAnimationFrame(this.loop.bind(this));
+    this.blocks = blocks || this.blocks;
 
     // Event listener to catch all the clicks.
     var self = this;
     this.canvas.addEventListener('click', function (event) {
       self.clicks.push({'x': event.x, 'y': event.y});
     });
+
+    // Start play
+    this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    this.animate = true;
+    requestAnimationFrame(this.loop.bind(this));
   };
 
   Game.prototype.reset = function (listener) {
     this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
-    this.init();
+    this.menu.drawMainMenu();
   };
 
   Game.prototype.loop = function () {
